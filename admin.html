@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Poker Club Server</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        h1 { color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #eee; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel - Poker Club Server</h1>
+        <p>Здесь вы можете управлять данными сервера.</p>
+        <button onclick="getUsers()">Загрузить пользователей</button>
+        <button onclick="getTournaments()">Загрузить турниры</button>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}/${endpoint}`);
+                const data = await response.json();
+                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('output').textContent = `Error: ${error.message}`;
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function getUsers() {
+            fetchData('users');
+        }
+
+        function getTournaments() {
+            fetchData('tournaments');
+        }
+    </script>
+</body>
+</html>
