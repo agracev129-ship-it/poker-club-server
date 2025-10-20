@@ -3,352 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poker Club - Админ панель</title>
+    <title>Admin Panel - Poker Club Server</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        h1 { color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button {
+            background-color: #007bff;
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-        
-        .section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .section h2 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .user-item, .tournament-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .user-item:last-child, .tournament-item:last-child {
-            border-bottom: none;
-        }
-        
-        .btn {
-            background: #667eea;
-            color: white;
+            padding: 10px 15px;
             border: none;
-            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            margin: 5px;
+            font-size: 16px;
+            margin-top: 10px;
         }
-        
-        .btn:hover {
-            background: #5a6fd8;
-        }
-        
-        .btn-danger {
-            background: #e74c3c;
-        }
-        
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .status {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .status.upcoming {
-            background: #f39c12;
-            color: white;
-        }
-        
-        .status.active {
-            background: #27ae60;
-            color: white;
-        }
-        
-        .status.finished {
-            background: #95a5a6;
-            color: white;
-        }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #eee; padding: 10px; border-radius: 5px; overflow-x: auto; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🃏 Poker Club - Админ панель</h1>
-            <p>Управление клубом и мониторинг данных</p>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalUsers">0</div>
-                <div>Пользователей</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalTournaments">0</div>
-                <div>Турниров</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="activeGames">0</div>
-                <div>Активных игр</div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>👥 Пользователи</h2>
-            <button class="btn" onclick="loadUsers()">Обновить список</button>
-            <div id="usersList"></div>
-        </div>
-        
-        <div class="section">
-            <h2>🏆 Турниры</h2>
-            <button class="btn" onclick="loadTournaments()">Обновить список</button>
-            <div id="tournamentsList"></div>
-        </div>
-        
-        <div class="section">
-            <h2>➕ Создать турнир</h2>
-            <form id="createTournamentForm">
-                <div class="form-group">
-                    <label>Название турнира:</label>
-                    <input type="text" id="tournamentName" required>
-                </div>
-                <div class="form-group">
-                    <label>Дата и время:</label>
-                    <input type="datetime-local" id="tournamentDate" required>
-                </div>
-                <div class="form-group">
-                    <label>Максимум игроков:</label>
-                    <input type="number" id="maxPlayers" min="2" max="20" value="8" required>
-                </div>
-                <div class="form-group">
-                    <label>Приз (очки):</label>
-                    <input type="number" id="prize" min="100" value="500" required>
-                </div>
-                <div class="form-group">
-                    <label>Длительность (часы):</label>
-                    <input type="number" id="duration" min="1" max="24" value="2" required>
-                </div>
-                <button type="submit" class="btn">Создать турнир</button>
-            </form>
-        </div>
+        <h1>Admin Panel - Poker Club Server</h1>
+        <p>Здесь вы можете управлять данными сервера.</p>
+        <button onclick="getUsers()">Загрузить пользователей</button>
+        <button onclick="getTournaments()">Загрузить турниры</button>
+        <pre id="output"></pre>
     </div>
-    
+
     <script>
         const API_BASE = '/api';
-        
-        // Загрузка статистики
-        async function loadStats() {
+
+        async function fetchData(endpoint) {
             try {
-                const response = await fetch(`${API_BASE}/admin/stats`);
-                const stats = await response.json();
-                
-                document.getElementById('totalUsers').textContent = stats.totalUsers;
-                document.getElementById('totalTournaments').textContent = stats.totalTournaments;
-                document.getElementById('activeGames').textContent = stats.activeGames;
+                const response = await fetch(`${API_BASE}/${endpoint}`);
+                const data = await response.json();
+                document.getElementById('output').textContent = JSON.stringify(data, null, 2);
             } catch (error) {
-                console.error('Ошибка загрузки статистики:', error);
+                document.getElementById('output').textContent = `Error: ${error.message}`;
+                console.error('Error fetching data:', error);
             }
         }
-        
-        // Загрузка пользователей
-        async function loadUsers() {
-            try {
-                const response = await fetch(`${API_BASE}/users`);
-                const users = await response.json();
-                
-                const usersList = document.getElementById('usersList');
-                usersList.innerHTML = users.map(user => `
-                    <div class="user-item">
-                        <div>
-                            <strong>${user.game_nickname}</strong> (${user.telegram_name})
-                            <br>
-                            <small>ID: ${user.telegram_id} | Очков: ${user.points} | Игр: ${user.total_games}</small>
-                        </div>
-                        <div>
-                            <span class="status ${user.is_admin ? 'active' : 'upcoming'}">
-                                ${user.is_admin ? 'Админ' : 'Игрок'}
-                            </span>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Ошибка загрузки пользователей:', error);
-            }
+
+        function getUsers() {
+            fetchData('users');
         }
-        
-        // Загрузка турниров
-        async function loadTournaments() {
-            try {
-                const response = await fetch(`${API_BASE}/tournaments`);
-                const tournaments = await response.json();
-                
-                const tournamentsList = document.getElementById('tournamentsList');
-                tournamentsList.innerHTML = tournaments.map(tournament => `
-                    <div class="tournament-item">
-                        <div>
-                            <strong>${tournament.name}</strong>
-                            <br>
-                            <small>${new Date(tournament.date).toLocaleString('ru-RU')} | 
-                            Участников: ${tournament.participants.length}/${tournament.max_players} | 
-                            Приз: ${tournament.prize} очков</small>
-                        </div>
-                        <div>
-                            <span class="status ${tournament.status}">${tournament.status}</span>
-                            ${tournament.status === 'active' ? 
-                                `<button class="btn btn-danger" onclick="finishTournament(${tournament.id})">Завершить</button>` : 
-                                ''
-                            }
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Ошибка загрузки турниров:', error);
-            }
+
+        function getTournaments() {
+            fetchData('tournaments');
         }
-        
-        // Создание турнира
-        document.getElementById('createTournamentForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('tournamentName').value,
-                date: document.getElementById('tournamentDate').value,
-                maxPlayers: parseInt(document.getElementById('maxPlayers').value),
-                prize: parseInt(document.getElementById('prize').value),
-                duration: parseInt(document.getElementById('duration').value)
-            };
-            
-            try {
-                const response = await fetch(`${API_BASE}/tournaments`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                if (response.ok) {
-                    alert('Турнир создан успешно!');
-                    document.getElementById('createTournamentForm').reset();
-                    loadTournaments();
-                    loadStats();
-                } else {
-                    alert('Ошибка создания турнира');
-                }
-            } catch (error) {
-                console.error('Ошибка создания турнира:', error);
-                alert('Ошибка создания турнира');
-            }
-        });
-        
-        // Завершение турнира
-        async function finishTournament(tournamentId) {
-            if (!confirm('Завершить турнир?')) return;
-            
-            try {
-                const response = await fetch(`${API_BASE}/tournaments/${tournamentId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ status: 'finished' })
-                });
-                
-                if (response.ok) {
-                    alert('Турнир завершен!');
-                    loadTournaments();
-                    loadStats();
-                } else {
-                    alert('Ошибка завершения турнира');
-                }
-            } catch (error) {
-                console.error('Ошибка завершения турнира:', error);
-                alert('Ошибка завершения турнира');
-            }
-        }
-        
-        // Автоматическое обновление каждые 30 секунд
-        setInterval(() => {
-            loadStats();
-            loadUsers();
-            loadTournaments();
-        }, 30000);
-        
-        // Загрузка данных при старте
-        loadStats();
-        loadUsers();
-        loadTournaments();
     </script>
 </body>
 </html>
